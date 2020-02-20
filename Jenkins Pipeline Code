@@ -1,0 +1,31 @@
+node{
+    
+    stage("git clone"){git 'https://github.com/devopsravikumar/spring-boot-maven-example-helloworld.git'}
+    stage("maven clean build"){
+        def mavenHome = tool name: "Maen3.6.3", type: "maven"
+        def mavenCMD = "${mavenHome}/bin/mvn "
+        sh "${mavenCMD} clean package" 
+    }
+    stage("Build Docker Image"){
+        sh "docker build -t dockerravi79/springbootmavenexample ."
+    }
+    stage('Push Docker Image'){
+        withCredentials([string(credentialsId: 'DOCKER_HUB_CREDENTIALS', variable: 'DOCKER_HUB_CREDENTIALS')]) {
+          sh "docker login -u dockerravi79 -p ${DOCKER_HUB_CREDENTIALS}"
+        }
+        sh 'docker push dockerravi79/springbootmavenexample'
+     }
+     /**
+     stage("Deploy To Kubernetes Cluster"){
+       kubernetesDeploy(
+         configs: 'spring-boot.yml', 
+         kubeconfigId: 'K8_CLUSTER_CONFIG',
+         enableConfigSubstitution: true
+        )
+     }
+    **/
+    stage("Deploy To Kubernetes Cluster"){
+        sh 'kubectl apply -f spring-boot.yml'
+}
+
+}
