@@ -1,33 +1,20 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  labels:
-    name: springboot
+  name: springboot-deployment
 spec:
-  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot
+  replicas: 2 # tells deployment to run 2 pods matching the template
   template:
     metadata:
       labels:
-        name: springboot
+        app: springboot
     spec:
       containers:
-      - image: dockerravi79/spring-boot-maven-example-helloworld
-        name: springboot
+      - name: springboot
+        image: dockerravi79/springbootmavenexample
         ports:
-        - name: springboot
-          containerPort: 8080      
----
-# Node Port Service
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: springboot
-  name: springboot
-spec:
-  type: NodePort
-  ports:
-    - port: 8080
-      targetPort: 8080
-  selector:
-    name: springboot
+        - containerPort: 80 
+
